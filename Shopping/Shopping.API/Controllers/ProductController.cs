@@ -4,6 +4,8 @@ using Shopping.API.Models;
 using System.Collections.Generic;
 using System;
 using Shopping.API.Data;
+using MongoDB.Driver;
+using System.Threading.Tasks;
 
 namespace Shopping.API.Controllers
 {
@@ -11,17 +13,22 @@ namespace Shopping.API.Controllers
     [Route("[controller]")]
     public class ProductController
     {
+        private readonly ProductContext context;
         private readonly ILogger<ProductController> logger;
 
-        public ProductController(ILogger<ProductController> logger)
+        public ProductController(ProductContext context, ILogger<ProductController> logger)
         {
-            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            this.context = context ?? throw new ArgumentNullException(nameof(context));
+            this.logger  = logger  ?? throw new ArgumentNullException(nameof(logger));
         }
 
         [HttpGet]
-        public IEnumerable<Product> Get()
+        public async Task<IEnumerable<Product>> Get()
         {
-            return ProductContext.Products;
+            return await context
+                            .Products
+                            .Find(p => true)
+                            .ToListAsync();
         }
     }
 }
